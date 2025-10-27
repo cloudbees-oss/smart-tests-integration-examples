@@ -1,0 +1,72 @@
+name: CodeceptJS
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "codeceptjs/**"
+      - ".github/workflows/codeceptjs.yml"
+  pull_request:
+    paths:
+      - "codeceptjs/**"
+      - ".github/workflows/codeceptjs.yml"
+
+env:
+  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN_CODECEPTJS }}
+  LAUNCHABLE_DEBUG: 1
+  LAUNCHABLE_REPORT_ERROR: 1
+
+jobs:
+  tests:
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: codeceptjs
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 #v5.0.0
+        with:
+          fetch-depth: 0
+
+      # Set up Python for Launchable CLI
+      - uses: actions/setup-python@e797f83bcb11b83ae66e0230d6156d7c80228e7c #6.0.0
+        with:
+          python-version: "3.x"
+
+      # Set up Java for Launchable CLI
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@dded0888837ed1f317902acf8a20df0ad188d165 #v5.0.0
+        with:
+          java-version: 8
+          distribution: "temurin"
+
+      # Install Launchable CLI
+      - name: Install launchable CLI
+        run: |
+          pip install launchable
+
+      # Set up Node.js
+      - uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 #v6.0.0
+        with:
+          node-version: 18
+          cache: "npm"
+          cache-dependency-path: codeceptjs/package-lock.json
+
+      # Install dependencies and Playwright browsers
+      - name: Install dependencies
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      # Record commits and build with Launchable
+      - name: Record commits and build
+        run: launchable record build --name "$GITHUB_RUN_ID"
+
+      # Run CodeceptJS tests
+      - name: Run CodeceptJS tests
+        run: npm run test:xml
+        continue-on-error: true
+
+      # Record test results with Launchable
+      - name: Record test results
+        run: launchable record tests codeceptjs codeceptjs-result.xml
+        if: always()
