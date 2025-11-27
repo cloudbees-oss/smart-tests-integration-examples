@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "glob": "^11.0.3",
+    "jasmine": "^5.12.0",
+    "jasmine-json-test-reporter": "^1.0.0-beta"
+  }
+}

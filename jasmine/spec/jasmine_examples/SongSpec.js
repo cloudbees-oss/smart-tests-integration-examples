@@ -10,8 +10,8 @@ describe('Song', function () {
         song = new Song();
     });
 
-    it('should be able to play by player (intentionally set to fail)', function () {
+    it('should be able to play by player', function () {
         player.play(song);
-        expect(player.isPlaying).toBeFalsy();
+        expect(player.isPlaying).toBeTruthy();
     });
 });
