@@ -1,0 +1,53 @@
+name: jasmine
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "jasmine/**"
+  pull_request:
+    paths:
+      - "jasmine/**"
+      - .github/workflows/jasmine.yaml
+
+env:
+  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN_JASMINE }}
+  LAUNCHABLE_DEBUG: 1
+  LAUNCHABLE_REPORT_ERROR: 1
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: jasmine
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Install Launchable CLI
+        run: pip install launchable
+      - name: Launchable verify
+        run: launchable verify
+      - name: Install dependencies
+        run: npm install
+      - name: Record build
+        run: launchable record build --name "$GITHUB_RUN_ID"
+      - name: Save all tests to a file
+        run: find spec/jasmine_examples -type f > test_list.txt
+      - name: Run all tests
+        run: npx jasmine $(cat test_list.txt)
+      - name: Record tests
+        run: launchable record tests --base $(pwd) jasmine jasmine-report.json
+      - name: Request subset
+        run: cat test_list.txt | launchable subset --target 25% jasmine > subset.txt
+      - name: Run subset of tests
+        run: npx jasmine $(cat subset.txt)

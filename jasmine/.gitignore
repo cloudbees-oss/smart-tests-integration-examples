@@ -1,0 +1,5 @@
+node_modules
+.launchable
+.python-version
+jasmine-report.json
+*.txt
