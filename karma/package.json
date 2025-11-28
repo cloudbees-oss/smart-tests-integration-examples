@@ -1,0 +1,14 @@
+{
+  "devDependencies": {
+    "jasmine-core": "^5.12.1",
+    "karma": "^6.4.4",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-jasmine": "^5.1.0",
+    "karma-json-reporter": "^1.2.1",
+    "karma-junit-reporter": "^2.0.1",
+    "karma-reports-with-file-paths": "^1.0.1"
+  },
+  "dependencies": {
+    "karma-reports-with-file-paths-preprocessor": "file:karma-file-path-preprocessor"
+  }
+}
