@@ -1,0 +1,6 @@
+node_modules
+.launchable
+.python-version
+*.txt
+test-results.json
+TESTS.xml

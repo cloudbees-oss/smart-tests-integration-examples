@@ -1,0 +1,57 @@
+name: karma
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "karma/**"
+  pull_request:
+    paths:
+      - "karma/**"
+      - .github/workflows/karma.yaml
+
+env:
+  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN_KARMA }}
+  LAUNCHABLE_DEBUG: 1
+  LAUNCHABLE_REPORT_ERROR: 1
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: karma
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      - name: Install Launchable CLI
+        run: pip install launchable
+      - name: Launchable verify
+        run: launchable verify
+      - name: Install dependencies
+        run: npm install
+      - name: Record build
+        run: launchable record build --name "$GITHUB_RUN_ID"
+      - name: Save all tests to a file
+        run: find test -name "*.spec.ts" -o -name "*.spec.js" > test_list.txt
+      - name: Run all tests
+        run: |
+          export KARMA_FILES=$(cat test_list.txt | jq -R -s -c 'split("\n")[:-1]')
+          npx karma start --single-run
+      - name: Record tests
+        run: launchable record tests karma test-results.json
+      - name: Request subset
+        run: cat test_list.txt | launchable subset --target 25% karma  > subset.txt
+      - name: Run subset of tests
+        run: |
+          export KARMA_FILES=$(cat subset.txt | jq -R -s -c 'split("\n")[:-1]')
+          npx karma start --single-run
