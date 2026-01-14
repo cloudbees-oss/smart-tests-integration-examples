@@ -43,15 +43,15 @@ jobs:
         run: launchable record build --name "$GITHUB_RUN_ID"
       - name: Save all tests to a file
         run: find test -name "*.spec.ts" -o -name "*.spec.js" > test_list.txt
-      - name: Run all tests
+      - name: Request subset
+        run: cat test_list.txt | launchable subset --target 25% --rest rest.txt karma  > subset.txt
+      - name: Run subset of tests
         run: |
-          export KARMA_FILES=$(cat test_list.txt | jq -R -s -c 'split("\n")[:-1]')
+          export KARMA_FILES=$(cat subset.txt | jq -R -s -c 'split("\n") | map(select(length > 0))')
+          npx karma start --single-run
+      - name: Run rest
+        run: |
+          export KARMA_FILES=$(cat rest.txt | jq -R -s -c 'split("\n") | map(select(length > 0))')
           npx karma start --single-run
       - name: Record tests
         run: launchable record tests karma test-results.json
-      - name: Request subset
-        run: cat test_list.txt | launchable subset --target 25% karma  > subset.txt
-      - name: Run subset of tests
-        run: |
-          export KARMA_FILES=$(cat subset.txt | jq -R -s -c 'split("\n")[:-1]')
-          npx karma start --single-run
