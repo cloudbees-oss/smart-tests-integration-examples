@@ -14,10 +14,10 @@ Launchable recorded build test to workspace launchableinc/example with commits f
 | ../    | ../    | 5fa3dc1aa3dc34589765898ec285e810b0bea422 |
 
 # Run test
-$ dotnet test --logger:"nunit;LogFilePath=test-result.xml"
+$ dotnet test --logger:"nunit;LogFilePath=test-result.xml" --logger:"junit;LogFilePath=junit-result.xml"
 ...
 
-Failed!  - Failed:     3, Passed:     1, Skipped:     0, Total:     4, Duration: 24 ms - rocket-car-dotnet.dll (net7.0)
+Failed!  - Failed:     3, Passed:     1, Skipped:     0, Total:     4, Duration: 24 ms - rocket-car-dotnet.dll (net8.0)
 
 
 $ launchable record tests --build ${BUILD_NAME} dotnet ./test-result.xml
@@ -57,7 +57,7 @@ FullyQualifiedName!=rocket_car_dotnet.ExampleTest.TestDiv
 $ dotnet test --filter $(cat subset.txt)
 ...
 
-Failed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 25 ms - rocket-car-dotnet.dll (net7.0)
+Failed!  - Failed:     2, Passed:     1, Skipped:     0, Total:     3, Duration: 25 ms - rocket-car-dotnet.dll (net8.0)
 ```
 
 ## Split subset for parallel test runs
