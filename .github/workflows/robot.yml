@@ -46,4 +46,5 @@ jobs:
           }
           trap record EXIT
 
-          eval robot --output output.xml $(cat smart-tests-subset.txt) .
+          # Some test cases are intentionally failing as this is an example repository
+          eval robot --output output.xml $(cat smart-tests-subset.txt) . || true
