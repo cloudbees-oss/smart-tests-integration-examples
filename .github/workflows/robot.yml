@@ -34,8 +34,7 @@ jobs:
           pip install robotframework smart-tests-cli
       - run: smart-tests verify
       - name: Record build
-        run: smart-tests record build --build ${GITHUB_RUN_ID}
-        working-directory: ..
+        run: smart-tests record build --build ${GITHUB_RUN_ID} --source ..
       - name: Record session
         run: smart-tests record session --build ${GITHUB_RUN_ID} --test-suite robot > session.txt
       - name: Get subset
