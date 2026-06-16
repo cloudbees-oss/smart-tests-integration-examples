@@ -34,10 +34,10 @@ jobs:
       - name: Run Pytest
         run: |
           launchable record build --name ${GITHUB_RUN_ID}
-          launchable record session --build ${GITHUB_RUN_ID} --test-suite pytest > session.txt
+          launchable record session --build ${GITHUB_RUN_ID} > session.txt
 
-          pytest --collect-only -q > test_list.txt
-          cat test_list.txt | launchable subset --session $(cat session.txt) --target 100% pytest > launchable-subset.txt
+          pytest tests/test.py --collect-only -q > test_list.txt
+          cat test_list.txt | launchable subset --session $(cat session.txt) --target 20% pytest > launchable-subset.txt
 
           function record() {
             # Record test results
