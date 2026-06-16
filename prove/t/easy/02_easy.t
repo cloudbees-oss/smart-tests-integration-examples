@@ -1,13 +1,13 @@
 use strict;
 use warnings;
 use utf8;
-use Test::More;
+use Test2::V0;
 
 use Example::Easy;
 
-is(Example::Easy::str_concat("a", "b"), "ab", "a + b = ab");
+is(Example::Easy::str_concat("b", "a"), "ba", "b + a = ba");
 
-subtest 'str_concat' => sub {
+subtest 'str_concat_v2' => sub {
     my ($a, $b, $c, $d) = ("a", "bb", "ccc", "dddd");
 
     is(Example::Easy::str_concat($a, $d), "adddd", "$a + $d");

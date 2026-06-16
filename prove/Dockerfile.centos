@@ -1,0 +1,50 @@
+FROM centos:centos7.9.2009
+
+COPY . /opt/
+WORKDIR /opt/
+RUN yum update -y && \
+    yum groupinstall -y "development tools" && \
+    yum install -y bzip2-devel gdbm-devel libffi-devel libuuid-devel ncurses-devel \
+    readline-devel sqlite-devel tk-devel wget xz-devel zlib-devel epel-release \
+    curl make git gcc zstd default-jdk build-essential java-1.8.0-openjdk \
+    perl perl-core perl-local-lib perl-CPAN perl-App-cpanminus expat-devel perl-XML-SemanticDiff \
+    perl-Test-Unit-Runner-Xml perl-File-Slurp perl-Moose perl-IPC-Run perl-Test-XML \
+    perl-XML-SAX perl-XML-SAX-Writer perl-XML-Twig perl-XML-XPath && \
+    yum -y remove openssl openssl-devel
+
+WORKDIR /opt/
+RUN wget https://www.openssl.org/source/openssl-1.1.1t.tar.gz && \
+    tar xvf openssl-1.1.1t.tar.gz && \
+    cd openssl-1.1*/ && \
+    ./config --prefix=/usr --openssldir=/etc/ssl --libdir=lib no-shared zlib-dynamic && \
+    make && \
+    make test && \
+    make install && \
+    echo "export LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64" >> /etc/profile.d/openssl.sh && \
+    source /etc/profile.d/openssl.sh 
+
+WORKDIR /opt/
+RUN wget https://www.python.org/ftp/python/3.8.16/Python-3.8.16.tgz && \
+    tar xzf Python-3.8.16.tgz && \
+    cd Python-3.8.16 && \
+    ./configure --enable-optimizations && \
+    make altinstall && \
+    python3.8 -m pip install --upgrade pip && \
+    pip install install wheel setuptools_scm && \
+    git clone https://github.com/launchableinc/cli.git && \
+    cd cli && \
+    git checkout fix-remove_teardown && \
+    python3.8 setup.py install
+
+WORKDIR /opt/
+RUN curl -fsSL https://raw.githubusercontent.com/skaji/cpm/main/cpm > cpm && \
+    chmod +x cpm && \
+    cpan Carton; exit 0
+
+RUN cpan Carton && \
+    cpan install MooseX::NonMoose && \
+    cpan install XML::Parser && \
+    ./cpm install && \
+    carton install && \
+    cpan namespace::autoclean && \
+    chmod +x /opt/run.sh
