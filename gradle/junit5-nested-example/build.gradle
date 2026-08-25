@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+}
+
+/*
+ * KEY SETTING: Gradle's JUnit Platform test executor uses TestDescriptor.getDisplayName()
+ * when building the XML report `name` attribute. This means @DisplayName values appear
+ * in the XML instead of actual Java method names — unlike Maven Surefire 3.x which
+ * always uses the actual method name.
+ *
+ * With this configuration, a test annotated @DisplayName("Mobile is Phone") will produce:
+ *   <testcase name="Mobile is Phone" classname="com.example.DeviceTypeTest$EnumConversion"/>
+ * instead of:
+ *   <testcase name="mobileIsPhone()" classname="com.example.DeviceTypeTest$EnumConversion"/>
+ *
+ * The Launchable CLI records the `name` attribute verbatim as the `testcase` path segment.
+ * If @DisplayName changes, the path changes → history breaks → subset warnings.
+ */
+test {
+    useJUnitPlatform()
+
+    // Produce JUnit-style XML reports in build/test-results/
+    reports {
+        junitXml.required = true
+    }
+}
