@@ -1,0 +1,53 @@
+name: Gradle + TestNG
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "gradle-testng/**"
+      - ".github/workflows/gradle-testng.yml"
+  pull_request:
+    paths:
+      - "gradle-testng/**"
+      - ".github/workflows/gradle-testng.yml"
+
+env:
+  LAUNCHABLE_TOKEN: ${{ secrets.LAUNCHABLE_TOKEN_TESTNG }}
+  LAUNCHABLE_DEBUG: 1
+  LAUNCHABLE_REPORT_ERROR: 1
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gradle-testng
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install wheel setuptools_scm
+          pip install launchable
+      - run: launchable verify
+      - name: Record commits and build
+        run: 'launchable record build --name "$GITHUB_RUN_ID" --source ..'
+      - name: Request test subset
+        run: >
+          launchable subset --target 80% gradle --bare src/test/java >
+          subset.txt
+      - name: Run selected TestNG classes
+        run: >
+          LAUNCHABLE_SUBSET_FILE_PATH="$PWD/subset.txt"
+          ./gradlew test
+      - name: Record test results
+        if: always()
+        run: >
+          launchable record tests gradle build/test-results/test
