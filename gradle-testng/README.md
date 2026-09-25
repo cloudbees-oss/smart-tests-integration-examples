@@ -1,13 +1,13 @@
-# Gradle + TestNG + Launchable
+# Gradle + TestNG + CloudBees Smart Tests
 
 This minimal Gradle and TestNG project demonstrates predictive test selection
-with Launchable. It has two test classes so you can see that a subset runs only
-the selected class.
+with CloudBees Smart Tests. It has two test classes so you can see that a
+subset runs only the selected class.
 
 ## Prerequisites
 
 * JDK 17 or later
-* Launchable CLI authenticated for the target workspace
+* smart-tests CLI authenticated for the target workspace
 
 Run the whole suite:
 
@@ -15,20 +15,24 @@ Run the whole suite:
 ./gradlew test
 ```
 
-## Launchable pipeline
+## Smart Tests pipeline
 
 The normal CI flow is:
 
 ```sh
 # Verify credentials, then record the source revision for this build.
-launchable verify
-launchable record build --name "$BUILD_NAME" --source .
+smart-tests verify
+smart-tests record build --build "$BUILD_NAME"
+
+# Start a new test session for this build. The session ID is required by
+# both `subset` and `record tests` below.
+smart-tests record session --test-suite gradle-testng --build "$BUILD_NAME" > session.txt
 
 # Ask for selected TestNG classes. --bare is required: the adapter expects one
 # fully-qualified class name per line, not Gradle --tests arguments.
-launchable subset \
+smart-tests subset \
+  --session @session.txt \
   --target 80% \
-  --build "$BUILD_NAME" \
   gradle \
   --bare \
   src/test/java \
@@ -38,8 +42,8 @@ launchable subset \
 SMART_TESTS_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
 
 # Gradle produces JUnit XML reports even though the framework is TestNG.
-launchable record tests \
-  --build "$BUILD_NAME" \
+smart-tests record tests \
+  --session @session.txt \
   gradle \
   build/test-results/test
 ```
@@ -53,8 +57,8 @@ set +e
 SMART_TESTS_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
 test_exit=$?
 
-launchable record tests \
-  --build "$BUILD_NAME" \
+smart-tests record tests \
+  --session @session.txt \
   gradle \
   build/test-results/test
 
@@ -63,7 +67,7 @@ exit "$test_exit"
 
 ## Try selection locally
 
-`demo-subset.txt` simulates the output produced by `launchable subset gradle
+`demo-subset.txt` simulates the output produced by `smart-tests subset gradle
 --bare`:
 
 ```sh
