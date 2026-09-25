@@ -35,7 +35,7 @@ launchable subset \
   > subset.txt
 
 # launchable-testng is on the test runtime classpath and reads this file.
-LAUNCHABLE_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
+SMART_TESTS_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
 
 # Gradle produces JUnit XML reports even though the framework is TestNG.
 launchable record tests \
@@ -50,7 +50,7 @@ with that status.
 
 ```sh
 set +e
-LAUNCHABLE_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
+SMART_TESTS_SUBSET_FILE_PATH="$PWD/subset.txt" ./gradlew test
 test_exit=$?
 
 launchable record tests \
@@ -67,19 +67,24 @@ exit "$test_exit"
 --bare`:
 
 ```sh
-LAUNCHABLE_SUBSET_FILE_PATH="$PWD/demo-subset.txt" ./gradlew clean test
+SMART_TESTS_SUBSET_FILE_PATH="$PWD/demo-subset.txt" ./gradlew clean test
 ```
 
-Only `AdditionTest` runs. Remove `LAUNCHABLE_SUBSET_FILE_PATH` to run all
+Only `AdditionTest` runs. Remove `SMART_TESTS_SUBSET_FILE_PATH` to run all
 tests again.
 
 ## Important details
 
-* `launchable-testng` 1.3.0 reads `LAUNCHABLE_SUBSET_FILE_PATH`.
+* `launchable-testng` 1.4.2+ reads `SMART_TESTS_SUBSET_FILE_PATH`. Older
+  releases (through 1.3.0) only understood the legacy
+  `LAUNCHABLE_SUBSET_FILE_PATH`, which 1.4.2+ still accepts as a deprecated
+  fallback — but setting only the new name against an older plugin version
+  silently runs the full suite with no warning, so keep the dependency pinned
+  to 1.4.2 or later.
 * `launchable-testng` is a TestNG listener. The `useTestNG` configuration in
   `build.gradle` registers it explicitly because Gradle does not discover
   TestNG listeners from `META-INF/services`. Do not add
   `--tests "$(cat subset.txt)"` to the Gradle command for this integration.
-* `LAUNCHABLE_SUBSET_FILE_PATH` must be an absolute path or a path relative to
+* `SMART_TESTS_SUBSET_FILE_PATH` must be an absolute path or a path relative to
   the process that invokes Gradle.
 * The file contains fully-qualified test class names, one per line.

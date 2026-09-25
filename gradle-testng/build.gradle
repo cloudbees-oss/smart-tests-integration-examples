@@ -18,10 +18,10 @@ java {
 dependencies {
     testImplementation 'org.testng:testng:6.14.3'
 
-    // The TestNG listener reads LAUNCHABLE_SUBSET_FILE_PATH and limits execution
-    // to the
-    // fully-qualified class names in that file.
-    testRuntimeOnly 'com.launchableinc:launchable-testng:1.3.0'
+    // The TestNG listener reads SMART_TESTS_SUBSET_FILE_PATH and limits
+    // execution to the fully-qualified class names in that file.
+    // (LAUNCHABLE_SUBSET_FILE_PATH also still works, as a deprecated fallback.)
+    testRuntimeOnly 'com.launchableinc:launchable-testng:1.4.2'
 }
 
 tasks.named('test') {
